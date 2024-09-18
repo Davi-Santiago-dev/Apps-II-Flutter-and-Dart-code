@@ -25,7 +25,7 @@ class BookDatabase {
     const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
     const textType = 'TEXT NOT NULL';
 
-    await db.execute('''
+    await db.execute(''' 
       CREATE TABLE books (
         id $idType,
         title $textType,
@@ -46,6 +46,7 @@ class BookDatabase {
 
     return List.generate(maps.length, (i) {
       return Book(
+        id: maps[i]['id'] as int?, // Incluindo o ID aqui
         title: maps[i]['title'] as String,
         author: maps[i]['author'] as String,
         imagePath: maps[i]['imagePath'] as String,

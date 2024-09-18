@@ -15,13 +15,13 @@ class BookListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(book.imagePath);
     return ListTile(
       leading: AspectRatio(
-        aspectRatio: 0.9,  // Proporção de 90% (largura) em relação à altura
+        aspectRatio: 0.9, // Proporção de 90% (largura) em relação à altura
         child: book.imagePath.isNotEmpty
             ? Image.asset(
-                book.imagePath,
-                fit: BoxFit.cover,  // Ajusta a imagem para cobrir o espaço
+                book.imagePath.replaceAll('\\', '/'),
               )
             : Container(
                 color: Colors.grey[100],

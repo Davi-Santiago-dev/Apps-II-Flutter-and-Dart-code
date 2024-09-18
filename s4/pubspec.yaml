@@ -4,7 +4,7 @@ publish_to: 'none'
 version: 0.1.0
 
 environment:
-  sdk: ^3.5.0
+  sdk: ^3.3.0
 
 dependencies:
   flutter:
@@ -20,6 +20,8 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - lib/src/assets/images/blue_lock_vol_7.jpg
-    - lib/src/assets/images/quincas_borba.jpg
-    - lib/src/assets/images/feliz_ano_velho.jpg
+    - lib/src/assets/images/
+flutter_assets:
+  assets_path: lib/src/assets/images/
+  output_path: lib/dist/
+  filename: assets.dart
