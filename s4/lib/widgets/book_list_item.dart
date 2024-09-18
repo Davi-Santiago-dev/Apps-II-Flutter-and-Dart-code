@@ -16,7 +16,18 @@ class BookListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      contentPadding: const EdgeInsets.all(16.0),
+      leading: AspectRatio(
+        aspectRatio: 0.9,  // Proporção de 90% (largura) em relação à altura
+        child: book.imagePath.isNotEmpty
+            ? Image.asset(
+                book.imagePath,
+                fit: BoxFit.cover,  // Ajusta a imagem para cobrir o espaço
+              )
+            : Container(
+                color: Colors.grey[100],
+                child: const Icon(Icons.book, color: Colors.grey),
+              ),
+      ),
       title: Text(
         book.title,
         style: const TextStyle(color: Colors.white),

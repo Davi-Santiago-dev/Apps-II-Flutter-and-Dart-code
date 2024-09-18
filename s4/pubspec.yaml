@@ -17,3 +17,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - lib/src/assets/images/blue_lock_vol_7.jpg
+    - lib/src/assets/images/quincas_borba.jpg
+    - lib/src/assets/images/feliz_ano_velho.jpg

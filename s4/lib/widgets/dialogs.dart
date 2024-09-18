@@ -4,6 +4,7 @@ import '../models/book.dart';
 void _showAddBookDialog(BuildContext context, Function(Book) onAddBook) {
   String title = '';
   String author = '';
+  String imagePath = ''; // Corrigido para imagePath
 
   showDialog(
     context: context,
@@ -25,6 +26,12 @@ void _showAddBookDialog(BuildContext context, Function(Book) onAddBook) {
                 author = value;
               },
             ),
+            TextField(
+              decoration: const InputDecoration(labelText: 'Caminho da Imagem'),
+              onChanged: (value) {
+                imagePath = value; // Corrigido para imagePath
+              },
+            ),
           ],
         ),
         actions: [
@@ -36,8 +43,19 @@ void _showAddBookDialog(BuildContext context, Function(Book) onAddBook) {
           ),
           TextButton(
             onPressed: () {
-              onAddBook(Book(title: title, author: author));
-              Navigator.of(context).pop();
+              if (title.isNotEmpty && author.isNotEmpty && imagePath.isNotEmpty) {
+                onAddBook(Book(
+                  title: title,
+                  author: author,
+                  imagePath: imagePath, // Corrigido para imagePath
+                ));
+                Navigator.of(context).pop();
+              } else {
+                // Mostrar um alerta se algum campo estiver vazio
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Por favor, preencha todos os campos')),
+                );
+              }
             },
             child: const Text('Adicionar'),
           ),

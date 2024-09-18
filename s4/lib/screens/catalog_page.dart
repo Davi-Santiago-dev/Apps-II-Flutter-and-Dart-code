@@ -11,42 +11,34 @@ class CatalogPage extends StatefulWidget {
 
 class _CatalogPageState extends State<CatalogPage> {
   final List<Book> books = [
-    Book(title: 'Blue Lock Vol 7', author: 'Muneyuki Kaneshiro'),
-    Book(title: 'Quincas Borba', author: 'Machado de Assis'),
-    Book(title: 'Feliz Ano Velho', author: 'Marcelo Rubens Paiva'),
+    Book(title: 'Blue Lock Vol 7', author: 'Muneyuki Kaneshiro', imagePath: 'lib/src/assets/images/blue_lock_vol_7.jpg'),
+    Book(title: 'Quincas Borba', author: 'Machado de Assis', imagePath: 'lib/src/assets/images/quincas_borba.jpg'),
+    Book(title: 'Feliz Ano Velho', author: 'Marcelo Rubens Paiva', imagePath: 'lib/src/assets/images/feliz_ano_velho.jpg'),
   ];
 
-  // Função para adicionar um novo livro
   void _addBook(Book book) {
     setState(() {
       books.add(book);
     });
-    // Aqui você pode adicionar o código para salvar no banco de dados
   }
 
-  // Função para editar um livro existente
   void _editBook(int index, Book updatedBook) {
     setState(() {
       books[index] = updatedBook;
     });
-    // Aqui você pode adicionar o código para atualizar o banco de dados
   }
 
-  // Função para remover um livro
   void _removeBook(int index) {
     setState(() {
       books.removeAt(index);
     });
-    // Aqui você pode adicionar o código para remover do banco de dados
   }
 
-  // Método para exibir o diálogo de edição de livro
   void _showEditBookDialog(BuildContext context, int index, Function(int, Book) onEditBook) {
     Book book = books[index];
-    
-    // Controladores de Texto para inicializar os campos com os valores atuais do livro
     TextEditingController titleController = TextEditingController(text: book.title);
     TextEditingController authorController = TextEditingController(text: book.author);
+    TextEditingController imageController = TextEditingController(text: book.imagePath);
 
     showDialog(
       context: context,
@@ -64,6 +56,10 @@ class _CatalogPageState extends State<CatalogPage> {
                 decoration: const InputDecoration(labelText: 'Autor'),
                 controller: authorController,
               ),
+              TextField(
+                decoration: const InputDecoration(labelText: 'Caminho da Imagem'),
+                controller: imageController,
+              ),
             ],
           ),
           actions: [
@@ -75,10 +71,67 @@ class _CatalogPageState extends State<CatalogPage> {
             ),
             TextButton(
               onPressed: () {
-                onEditBook(index, Book(title: titleController.text, author: authorController.text));
+                onEditBook(index, Book(
+                  title: titleController.text,
+                  author: authorController.text,
+                  imagePath: imageController.text,
+                ));
                 Navigator.of(context).pop();
               },
               child: const Text('Salvar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showAddBookDialog(BuildContext context, Function(Book) onAddBook) {
+    String title = '';
+    String author = '';
+    String imagePath = ''; // Corrigido para imagePath
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Adicionar Novo Livro'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                decoration: const InputDecoration(labelText: 'Título'),
+                onChanged: (value) {
+                  title = value;
+                },
+              ),
+              TextField(
+                decoration: const InputDecoration(labelText: 'Autor'),
+                onChanged: (value) {
+                  author = value;
+                },
+              ),
+              TextField(
+                decoration: const InputDecoration(labelText: 'Caminho da Imagem'),
+                onChanged: (value) {
+                  imagePath = value; // Corrigido para imagePath
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                onAddBook(Book(title: title, author: author, imagePath: imagePath));
+                Navigator.of(context).pop();
+              },
+              child: const Text('Adicionar'),
             ),
           ],
         );
@@ -117,7 +170,6 @@ class _CatalogPageState extends State<CatalogPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Barra fina com a quantidade de livros
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(8.0),
@@ -127,7 +179,6 @@ class _CatalogPageState extends State<CatalogPage> {
               style: const TextStyle(color: Colors.white),
             ),
           ),
-          // Corpo principal da página
           Expanded(
             child: ListView.separated(
               itemCount: books.length,
@@ -148,8 +199,3 @@ class _CatalogPageState extends State<CatalogPage> {
     );
   }
 }
-
-class _showAddBookDialog {
-  _showAddBookDialog(BuildContext context, void Function(Book book) addBook);
-}
-
