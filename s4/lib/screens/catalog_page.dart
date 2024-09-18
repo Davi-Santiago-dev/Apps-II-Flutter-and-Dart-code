@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/book.dart';
+import '../services/book_service.dart'; // Certifique-se de ter um arquivo com este nome e caminho
 import '../widgets/book_list_item.dart';
+import '../widgets/dialogs.dart'; // Importando o arquivo dialogs
 
 class CatalogPage extends StatefulWidget {
   const CatalogPage({super.key});
@@ -10,134 +12,56 @@ class CatalogPage extends StatefulWidget {
 }
 
 class _CatalogPageState extends State<CatalogPage> {
-  final List<Book> books = [
-    Book(title: 'Blue Lock Vol 7', author: 'Muneyuki Kaneshiro', imagePath: 'lib/src/assets/images/blue_lock_vol_7.jpg'),
-    Book(title: 'Quincas Borba', author: 'Machado de Assis', imagePath: 'lib/src/assets/images/quincas_borba.jpg'),
-    Book(title: 'Feliz Ano Velho', author: 'Marcelo Rubens Paiva', imagePath: 'lib/src/assets/images/feliz_ano_velho.jpg'),
-  ];
+  late Future<List<Book>> _booksFuture;
+  final BookService _bookService = BookService();
 
-  void _addBook(Book book) {
+  @override
+  void initState() {
+    super.initState();
+    _refreshBooks(); // Carregar livros ao iniciar
+  }
+
+  void _refreshBooks() {
     setState(() {
-      books.add(book);
+      _booksFuture = _bookService.getBooks(); // Atualizar lista de livros
     });
   }
 
-  void _editBook(int index, Book updatedBook) {
-    setState(() {
-      books[index] = updatedBook;
-    });
+  void _addBook(Book book) async {
+    await _bookService.addBook(book);
+    _refreshBooks();
   }
 
-  void _removeBook(int index) {
-    setState(() {
-      books.removeAt(index);
-    });
+  void _editBook(int id, Book updatedBook) async {
+    await _bookService.editBook(id, updatedBook);
+    _refreshBooks();
   }
 
-  void _showEditBookDialog(BuildContext context, int index, Function(int, Book) onEditBook) {
-    Book book = books[index];
-    TextEditingController titleController = TextEditingController(text: book.title);
-    TextEditingController authorController = TextEditingController(text: book.author);
-    TextEditingController imageController = TextEditingController(text: book.imagePath);
+  void _removeBook(int id) async {
+    await _bookService.removeBook(id);
+    _refreshBooks();
+  }
 
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Editar Livro'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                decoration: const InputDecoration(labelText: 'Título'),
-                controller: titleController,
-              ),
-              TextField(
-                decoration: const InputDecoration(labelText: 'Autor'),
-                controller: authorController,
-              ),
-              TextField(
-                decoration: const InputDecoration(labelText: 'Caminho da Imagem'),
-                controller: imageController,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () {
-                onEditBook(index, Book(
-                  title: titleController.text,
-                  author: authorController.text,
-                  imagePath: imageController.text,
-                ));
-                Navigator.of(context).pop();
-              },
-              child: const Text('Salvar'),
-            ),
-          ],
-        );
+ void _showEditBookDialog(BuildContext context, Book book) {
+    showEditBookDialog(
+      context,
+      book.id!,
+      (id, updatedBook) {
+        _editBook(id, updatedBook);
       },
+      book,
     );
   }
 
-  void _showAddBookDialog(BuildContext context, Function(Book) onAddBook) {
-    String title = '';
-    String author = '';
-    String imagePath = ''; // Corrigido para imagePath
+void _showAddBookDialog(BuildContext context) {
+  showAddBookDialog(
+    context,
+    (book) {
+      _addBook(book);
+    },
+  );
+}
 
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Adicionar Novo Livro'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                decoration: const InputDecoration(labelText: 'Título'),
-                onChanged: (value) {
-                  title = value;
-                },
-              ),
-              TextField(
-                decoration: const InputDecoration(labelText: 'Autor'),
-                onChanged: (value) {
-                  author = value;
-                },
-              ),
-              TextField(
-                decoration: const InputDecoration(labelText: 'Caminho da Imagem'),
-                onChanged: (value) {
-                  imagePath = value; // Corrigido para imagePath
-                },
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () {
-                onAddBook(Book(title: title, author: author, imagePath: imagePath));
-                Navigator.of(context).pop();
-              },
-              child: const Text('Adicionar'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -156,45 +80,117 @@ class _CatalogPageState extends State<CatalogPage> {
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
-              _showAddBookDialog(context, _addBook);
+              _showAddBookDialog(context);
             },
           ),
         ],
-        leading: IconButton(
-          icon: const Icon(Icons.menu),
-          onPressed: () {
-            // Ação para abrir o menu
-          },
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+          ),
         ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(8.0),
-            color: const Color(0xFF161518),
-            child: Text(
-              'Exibindo ${books.length} livros, quadrinhos, filmes e jogos.',
-              style: const TextStyle(color: Colors.white),
-            ),
-          ),
-          Expanded(
-            child: ListView.separated(
-              itemCount: books.length,
-              separatorBuilder: (context, index) => const Divider(
-                color: Color(0xFF484848),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Color(0xFFE5BA00),
               ),
-              itemBuilder: (context, index) {
-                return BookListItem(
-                  book: books[index],
-                  onEdit: () => _showEditBookDialog(context, index, _editBook),
-                  onRemove: () => _removeBook(index),
-                );
+              child: Text('Catálogo'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.book),
+              title: const Text('Livros'),
+              onTap: () {
+                Navigator.pop(context); // Fechar o Drawer
+                // Navegar para a página de Livros (se houver)
               },
             ),
-          ),
-        ],
+            ListTile(
+              leading: const Icon(Icons.bookmark),
+              title: const Text('Quadrinhos'),
+              onTap: () {
+                Navigator.pop(context); // Fechar o Drawer
+                // Navegar para a página de Quadrinhos (se houver)
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.movie),
+              title: const Text('Filmes'),
+              onTap: () {
+                Navigator.pop(context); // Fechar o Drawer
+                // Navegar para a página de Filmes (se houver)
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Configurações'),
+              onTap: () {
+                Navigator.pop(context); // Fechar o Drawer
+                // Navegar para a página de Configurações
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.brightness_6),
+              title: const Text('Trocar Tema'),
+              onTap: () {
+                Navigator.pop(context); // Fechar o Drawer
+                // Trocar o tema
+              },
+            ),
+          ],
+        ),
+      ),
+      body: FutureBuilder<List<Book>>(
+        future: _booksFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Erro: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('Nenhum livro encontrado.'));
+          }
+
+          final books = snapshot.data!;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(8.0),
+                color: const Color(0xFF161518),
+                child: Text(
+                  'Exibindo ${books.length} livros.',
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+              Expanded(
+                child: ListView.separated(
+                  itemCount: books.length,
+                  separatorBuilder: (context, index) => const Divider(
+                    color: Color(0xFF484848),
+                  ),
+                  itemBuilder: (context, index) {
+                    final book = books[index];
+                    return BookListItem(
+                      book: book,
+                      onEdit: () => _showEditBookDialog(context, book),
+                      onRemove: () => _removeBook(book.id!),
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

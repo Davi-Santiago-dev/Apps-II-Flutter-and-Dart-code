@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  sqflite: ^2.0.0+4  # Adicionando dependência para SQLite
+  path: ^1.8.0       # Necessário para gerenciar os caminhos do banco de dados local
 
 dev_dependencies:
   flutter_test:
