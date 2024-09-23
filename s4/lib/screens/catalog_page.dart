@@ -69,7 +69,7 @@ void _showAddBookDialog(BuildContext context) {
       backgroundColor: const Color(0xFF242226),
       appBar: AppBar(
         backgroundColor: const Color(0xFFE5BA00),
-        title: const Text('Catálogo Geral'),
+        title: const Text('Catálogo geral'),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
