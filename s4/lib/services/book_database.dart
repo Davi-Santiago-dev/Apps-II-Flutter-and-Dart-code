@@ -25,7 +25,7 @@ class BookDatabase {
     const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
     const textType = 'TEXT NOT NULL';
 
-    await db.execute(''' 
+    await db.execute('''
       CREATE TABLE books (
         id $idType,
         title $textType,
@@ -55,14 +55,18 @@ class BookDatabase {
   }
 
   Future<void> updateBook(int id, Book book) async {
-    final db = await instance.database;
-    await db.update(
-      'books',
-      book.toMap(),
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-  }
+  final db = await instance.database;
+  await db.update(
+    'books',
+    {
+      'title': book.title,
+      'author': book.author,
+      'imagePath': book.imagePath,
+    },
+    where: 'id = ?',
+    whereArgs: [id],
+  );
+}
 
   Future<void> deleteBook(int id) async {
     final db = await instance.database;
